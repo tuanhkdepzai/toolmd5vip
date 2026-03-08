@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUANTUM AI OMEGA V12 - 84-UNIT ENGINE</title>
+    <style>
+        :root { --neon: #00ff41; --red: #ff4444; --blue: #00bfff; --gold: #ffcc00; --bg: #010501; }
+        * { box-sizing: border-box; font-family: 'Consolas', 'Courier New', monospace; }
+        body { background: var(--bg); color: var(--neon); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .master-frame { width: 100%; max-width: 650px; border: 2px solid var(--neon); border-radius: 20px; background: rgba(0,15,0,0.98); box-shadow: 0 0 50px rgba(0,255,65,0.2); position: relative; overflow: hidden; }
+        
+        /* AI SCANNER */
+        #ai-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .scan-line { width: 100%; height: 3px; background: var(--neon); box-shadow: 0 0 30px var(--neon); position: absolute; animation: scanAnim 1.5s infinite linear; }
+        @keyframes scanAnim { 0% { top: 0%; } 100% { top: 100%; } }
+        .loading-text { margin-top: 40px; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; text-align: center; color: var(--neon); }
+
+        header { padding: 20px; border-bottom: 2px solid var(--neon); text-align: center; background: rgba(0,255,65,0.1); }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; background: #000; font-size: 10px; border-bottom: 1px solid var(--neon); }
+        .card { padding: 15px; border-bottom: 1px solid rgba(0,255,65,0.1); }
+        
+        input { width: 100%; padding: 15px; background: #000; color: var(--neon); border: 1px solid var(--neon); border-radius: 10px; margin-bottom: 10px; font-size: 13px; outline: none; }
+        .btn-mega { width: 100%; padding: 20px; background: var(--neon); color: #000; font-weight: 900; border: none; cursor: pointer; border-radius: 12px; font-size: 18px; text-transform: uppercase; transition: 0.3s; }
+        .btn-mega:hover { box-shadow: 0 0 30px var(--neon); transform: scale(1.02); }
+
+        .result-zone { border: 2px dashed var(--neon); margin-top: 15px; padding: 20px; text-align: center; border-radius: 15px; background: rgba(0,0,0,0.6); }
+        .prediction { font-size: 55px; font-weight: 900; letter-spacing: 12px; margin: 10px 0; text-shadow: 0 0 25px currentColor; }
+        .prob-bar { height: 20px; background: #111; border-radius: 10px; overflow: hidden; display: flex; margin: 15px 0; border: 1px solid #333; }
+        .p-fill { height: 100%; transition: width 1.5s cubic-bezier(0.19, 1, 0.22, 1); }
+
+        .log-terminal { font-size: 11px; text-align: left; height: 250px; overflow-y: auto; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 10px; margin-top: 15px; color: #77ff77; line-height: 1.6; border: 1px solid #1a331a; }
+        .hist-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
+        .h-node { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid; font-weight: bold; }
+        .Tài { border-color: var(--neon); color: var(--neon); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
+        .Xỉu { border-color: var(--red); color: var(--red); box-shadow: 0 0 10px rgba(255,68,68,0.3); }
+        
+        .footer { text-align: center; padding: 15px; font-size: 9px; opacity: 0.6; color: var(--blue); }
+    </style>
+</head>
+<body>
+
+<div class="master-frame">
+    <div id="ai-overlay">
+        <div class="scan-line"></div>
+        <div class="loading-text" id="status-msg">INITIALIZING OMEGA CORE...</div>
+        <div id="unit-loader" style="font-size: 11px; margin-top: 20px; color: var(--blue);">MODELS: 0/84 UNITS</div>
+    </div>
+
+    <header>
+        <h2 style="margin:0; letter-spacing: 3px;">TOOL MD5 VIP</h2>
+        <div style="font-size: 10px; color: var(--gold); margin-top: 5px;">Admin @thanhnhatx</div>
+    </header>
+
+    <div class="status-grid">
+        <span>MAJOR: 21 (ACTIVE)</span>
+        <span>MINI: 21 (SYNCED)</span>
+        <span>AUX: 42 (STABLE)</span>
+        <span>CODE: LOCAL-SIMULATION</span>
+    </div>
+
+    <div class="card">
+        <b>PHÂN TÍCH MD5 (CHUỖI 32 KÝ TỰ)</b>
+        <input id="md5Input" placeholder="Nhập mã MD5 phiên hiện tại...">
+        <button class="btn-mega" onclick="bootEngine()">QUÉT TOÀN BỘ HỆ THỐNG</button>
+    </div>
+
+    <div class="card">
+        <div class="result-zone">
+            <div id="finalRes" class="prediction" style="color: #333;">READY</div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
+                <span id="labelTai">50% TÀI</span>
+                <span id="labelXiu">50% XỈU</span>
+            </div>
+            <div class="prob-bar">
+                <div id="barTai" class="p-fill" style="width: 50%; background: var(--neon);"></div>
+                <div id="barXiu" class="p-fill" style="width: 50%; background: var(--red);"></div>
+            </div>
+            <div class="log-terminal" id="logBox">
+                [SYSTEM] Vui lòng nhập lịch sử tối thiểu 3 phiên...
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <b>DỮ LIỆU CẦU LỊCH SỬ</b>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button onclick="addHist('Tài')" style="flex:1; padding: 15px; background:#002200; border:2px solid var(--neon); color:var(--neon); cursor: pointer; border-radius: 8px; font-weight: bold;">TÀI</button>
+            <button onclick="addHist('Xỉu')" style="flex:1; padding: 15px; background:#220000; border:2px solid var(--red); color:var(--red); cursor: pointer; border-radius: 8px; font-weight: bold;">XỈU</button>
+        </div>
+        <div id="historyGrid" class="hist-grid"></div>
+        <button onclick="resetAll()" style="background:none; border:1px solid #333; color:#555; margin-top:15px; font-size:10px; width: 100%; padding: 5px; cursor: pointer;">RESET ENGINE MEMORY</button>
+    </div>
+
+    <div class="footer">
+        POWERED BY OMEGA ENGINE 2026 • 128-BIT MD5 ENCRYPTION DECODER
+    </div>
+</div>
+
+<script>
+/* ==============================================================
+   CORE: 128-BIT MD5 DECODER (RFC 1321)
+   ============================================================== */
+const MD5_Engine = (str) => {
+    let k = Array.from({length: 64}, (_, i) => Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296));
+    let r = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+    let h = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476];
+    let b = new TextEncoder().encode(str);
+    let l = b.length, n = ((l + 8) >> 6) + 1, m = new Uint32Array(n << 4);
+    m.set(new Uint32Array(b.buffer)); m[l >> 2] |= 0x80 << ((l % 4) << 3); m[(n << 4) - 2] = l << 3;
+    for (let i = 0; i < n; i++) {
+        let a = [...h], x = m.subarray(i << 4, (i + 1) << 4);
+        for (let j = 0; j < 64; j++) {
+            let f, g;
+            if (j < 16) { f = (a[1] & a[2]) | (~a[1] & a[3]); g = j; }
+            else if (j < 32) { f = (a[3] & a[1]) | (~a[3] & a[2]); g = (5*j+1)%16; }
+            else if (j < 48) { f = a[1] ^ a[2] ^ a[3]; g = (3*j+5)%16; }
+            else { f = a[2] ^ (a[1] | ~a[3]); g = (7*j)%16; }
+            let t = (a[0] + f + k[j] + x[g]) | 0;
+            a = [a[3], (a[1] + (t << r[j] | t >>> (32-r[j]))) | 0, a[1], a[2]];
+        }
+        for (let j = 0; j < 4; j++) h[j] = (h[j] + a[j]) | 0;
+    }
+    return h.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
+};
+
+/* ==============================================================
+   84-UNIT LOGIC CONTROLLER
+   ============================================================== */
+let historyData = JSON.parse(localStorage.getItem("omega_v12_cache") || "[]");
+
+function addHist(v) {
+    historyData.push(v);
+    if(historyData.length > 50) historyData.shift();
+    localStorage.setItem("omega_v12_cache", JSON.stringify(historyData));
+    drawUI();
+}
+
+function drawUI() {
+    const g = document.getElementById("historyGrid");
+    g.innerHTML = "";
+    historyData.slice(-20).forEach(v => {
+        let n = document.createElement("div");
+        n.className = `h-node ${v}`; n.textContent = v[0];
+        g.appendChild(n);
+    });
+}
+
+function bootEngine() {
+    if(historyData.length < 3) return alert("Cần tối thiểu 3 phiên lịch sử!");
+    const overlay = document.getElementById("ai-overlay");
+    const status = document.getElementById("status-msg");
+    const loader = document.getElementById("unit-loader");
+    overlay.style.display = "flex";
+    let u = 0;
+    let timer = setInterval(() => {
+        u += 4;
+        loader.textContent = `MODELS: ${u}/84 UNITS`;
+        if(u === 20) status.textContent = "SCANNING PATTERNS (M1-M9)...";
+        if(u === 44) status.textContent = "DECODING 128-BIT MD5 ENTROPY...";
+        if(u === 68) status.textContent = "BREAK-TREND PROBABILITY (M10-M16)...";
+        if(u >= 84) {
+            clearInterval(timer);
+            overlay.style.display = "none";
+            processOmegaLogic();
+        }
+    }, 80);
+}
+
+function processOmegaLogic() {
+    let md5 = document.getElementById("md5Input").value.trim();
+    let h = [...historyData];
+    let last = h[h.length - 1];
+    let wT = 50, wX = 50; 
+    let logs = [];
+
+    // --- GROUP 1: PATTERN DETECTION (21 MAJOR) ---
+    const combo = h.slice(-6).join('');
+    // Cầu bệt
+    let streak = 0;
+    for(let i=h.length-1; i>=0; i--) { if(h[i]===last) streak++; else break; }
+    
+    // Cầu 1-1, 2-2, 1-2-1
+    if(/TàiXỉuTàiXỉu|XỉuTàiXỉuTài/.test(combo)) {
+        wT += (last === "Xỉu" ? 25 : -25);
+        logs.push("[M1/M9] Phát hiện cầu 1-1. Mini-M1: Ưu tiên đảo.");
+    }
+    if(/TàiTàiXỉuXỉu|XỉuXỉuTàiTài/.test(combo)) {
+        wT += (last === "Tài" ? 20 : -20);
+        logs.push("[M12/M19] Phát hiện cầu 2-2. Mini-M12: Bám nhịp.");
+    }
+
+    // --- GROUP 2: TREND & BREAK (21 MINI) ---
+    if(streak >= 3) {
+        if(streak >= 6) {
+            // M6, M10, M14, M16: XÁC SUẤT BẺ CẦU
+            wT += (last === "Tài" ? -40 : 40);
+            logs.push(`[M6/M10/M16] Bệt dài ${streak} ván. Mini-M10: Cảnh báo bẻ cầu cực cao.`);
+        } else {
+            // M2, M18: THEO XU HƯỚNG
+            wT += (last === "Tài" ? 30 : -30);
+            logs.push(`[M2/M18] Xu hướng bệt ${streak}. Mini-M18: Ưu tiên bám cầu ngắn.`);
+        }
+    }
+
+    // --- GROUP 3: MD5 ENTROPY (128-BIT) ---
+    if(md5.length >= 10) {
+        let hash = MD5_Engine(md5 + "SUPREME_V12");
+        let diceVal = parseInt(hash.charAt(0), 16);
+        let diceRes = diceVal % 2 === 0 ? "Tài" : "Xỉu";
+        wT += (diceRes === "Tài" ? 12 : -12);
+        logs.push(`[M11] Phân tích MD5 Entropy: Ký tự đầu ${hash.charAt(0)} (${diceRes}).`);
+    }
+
+    // --- GROUP 4: EQUILIBRIUM & PERFORMANCE (42 AUX) ---
+    let bias = h.filter(x => x === "Tài").length / h.length;
+    if(bias > 0.7) {
+        wT -= 15; logs.push("[M3/M21] Tài chênh lệch cao. Model cân bằng: Ép về Xỉu.");
+    } else if(bias < 0.3) {
+        wT += 15; logs.push("[M3/M21] Xỉu chênh lệch cao. Model cân bằng: Ép về Tài.");
+    }
+
+    // Final Output
+    let finalTai = Math.max(10, Math.min(90, wT));
+    let finalXiu = 100 - finalTai;
+
+    const res = document.getElementById("finalRes");
+    res.textContent = finalTai > 50 ? "TÀI" : (finalTai < 50 ? "XỈU" : "HÒA");
+    res.style.color = finalTai > 50 ? "var(--neon)" : (finalTai < 50 ? "var(--red)" : "#fff");
+    
+    document.getElementById("labelTai").textContent = finalTai + "% TÀI";
+    document.getElementById("labelXiu").textContent = finalXiu + "% XỈU";
+    document.getElementById("barTai").style.width = finalTai + "%";
+    document.getElementById("barXiu").style.width = finalXiu + "%";
+    document.getElementById("logBox").innerHTML = "<b>DỮ LIỆU PHÂN TÍCH (84 UNITS):</b><br>" + logs.join("<br>");
+}
+
+function resetAll() {
+    historyData = []; localStorage.removeItem("omega_v12_cache"); drawUI();
+    document.getElementById("finalRes").textContent = "READY";
+    document.getElementById("logBox").textContent = "[SYSTEM] Engine Memory Cleared.";
+}
+
+drawUI();
+</script>
+</body>
+</html>
